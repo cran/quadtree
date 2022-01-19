@@ -28,8 +28,8 @@ n_cells(qt)
 n_cells(qt, terminal_only = FALSE)
 
 ## -----------------------------------------------------------------------------
-extent(qt)
-extent(qt, original = TRUE)
+quadtree::extent(qt)
+quadtree::extent(qt, original = TRUE)
 
 ## -----------------------------------------------------------------------------
 pts <- cbind(x = c(5609, 3959, 20161, 27662, 32763),
@@ -39,8 +39,8 @@ plot(qt, crop = TRUE, border_lwd = .3, na_col = NULL)
 points(pts, pch = 16)
 
 ## -----------------------------------------------------------------------------
-extract(qt, pts)
-extract(qt, pts, extents = TRUE)
+quadtree::extract(qt, pts)
+quadtree::extract(qt, pts, extents = TRUE)
 
 ## -----------------------------------------------------------------------------
 get_neighbors(qt, as.numeric(pts[3,]))

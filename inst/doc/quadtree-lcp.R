@@ -24,6 +24,30 @@ start_pt <- c(6989, 34007)
 lcpf <- lcp_finder(qt, start_pt)
 lcpf
 
+## ---- echo = FALSE------------------------------------------------------------
+rects <- rbind(c(0, 4, 0, 4),
+               c(4, 6, 2, 4),
+               c(4, 6, 0, 2))
+
+pts <- rbind(c(3.5, 3.5),
+             c(5.5, 1.5))
+
+ln <- rbind(pts[1, ],
+            c(4, 2),
+            pts[2, ])             
+
+rects <- data.frame(rects)
+colnames(rects) <- c("x0", "x1", "y0", "y1")
+
+par(mar = c(0,0,0,0))
+plot(1, 1, xlim = range(rects[,1:2]), ylim = range(rects[,3:4]), asp = 1, type = "n", axes = FALSE, xlab = "", ylab = "")
+with(rects, rect(x0, y0, x1, y1))
+with(rects[c(1,3),], rect(x0, y0, x1, y1, border = "red", lwd = 2, col = "lightgray"))
+points(pts, pch = 16, cex = 1.3)
+text(pts, labels = 1:2, pos = 4)
+lines(pts, lty = "dashed", lwd = 2)
+lines(ln, lwd = 2)
+
 ## -----------------------------------------------------------------------------
 start_pt <- c(6989, 34007)
 end_pt <- c(33015, 38162)
@@ -56,6 +80,10 @@ plot(qt, crop = TRUE, na_col = NULL, border_col = "gray30", border_lwd = .3,
      legend = FALSE, axes = FALSE, main = "LCPs calculated")
 lines(lcpf)
 points(rbind(start_pt, end_pt), pch = 16, col = "red")
+
+## -----------------------------------------------------------------------------
+path <- find_lcp(qt, start_pt, end_pt)
+head(path)
 
 ## -----------------------------------------------------------------------------
 start_pt <- c(16715, 25634)

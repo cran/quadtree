@@ -30,9 +30,9 @@ test_that("as_raster() works", {
   pts2 <- raster::rasterToPoints(rst2, spatial = FALSE)
   pts3 <- raster::rasterToPoints(rst3, spatial = FALSE)
 
-  expect_equal(extract(qt, pts1[, 1:2]), extract(rst1, pts1[, 1:2]))
-  expect_equal(extract(qt, pts2[, 1:2]), extract(rst2, pts2[, 1:2]))
-  expect_equal(extract(qt, pts3[, 1:2]), extract(rst3, pts3[, 1:2]))
+  expect_equal(quadtree::extract(qt, pts1[, 1:2]), raster::extract(rst1, pts1[, 1:2]))
+  expect_equal(quadtree::extract(qt, pts2[, 1:2]), raster::extract(rst2, pts2[, 1:2]))
+  expect_equal(quadtree::extract(qt, pts3[, 1:2]), raster::extract(rst3, pts3[, 1:2]))
 })
 
 test_that("as_vector() works", {
@@ -64,23 +64,23 @@ test_that("copy() runs without errors and produces expected output", {
 })
 
 test_that("extent() runs without errors and produces expected output", {
-  library(raster)
+  #library(raster)
   data(habitat)
   qt1 <- quadtree(habitat, .3, split_method = "sd")
   expect_error(extent(qt1, original = FALSE), NA)
   qt_ext <- expect_error(extent(qt1, original = TRUE), NA)
-  expect_equal(qt_ext, extent(habitat))
+  expect_equal(qt_ext, raster::extent(habitat))
 })
 
 test_that("extract() runs without errors and returns correct values", {
-  library(raster)
+  # library(raster)
   data(habitat)
   # use 0 to make sure everything gets split as small as possible
   qt1 <- quadtree(habitat, 0)
 
-  ext <- extent(habitat)
+  ext <- raster::extent(habitat)
   pts <- cbind(runif(1000, ext[1], ext[2]), runif(1000, ext[3], ext[4]))
-  rst_ext <- extract(habitat, pts)
+  rst_ext <- raster::extract(habitat, pts)
   qt_ext <- expect_error(extract(qt1, pts), NA)
   qt_ext[is.nan(qt_ext)] <- NA
   expect_equal(qt_ext, rst_ext)
@@ -145,7 +145,7 @@ test_that("n_cells(), as_vector(), and as_data_frame() agree on the number of
 
 test_that("projection() runs without errors and returns correct value", {
   data(habitat)
-  suppressWarnings({crs(habitat) <- "+init=EPSG:27700"})
+  suppressWarnings({raster::crs(habitat) <- "+init=EPSG:27700"})
   qt1 <- quadtree(habitat, .5)
   qt_proj <- expect_error(quadtree::projection(qt1), NA)
   expect_equal(qt_proj, raster::projection(habitat))
@@ -173,6 +173,14 @@ test_that("read_quadtree() and write_quadtree() work", {
   df2 <- as_data_frame(qt2, FALSE)
   expect_equal(df1, df2)
 
+  # make sure neighbors are being assigned when read in. The above code was supposed
+  # to test this using 'getNeighborList()', but turns it doesn't actually catch the problem
+  # since 'getNeighborList()' calls 'findNeighbors()' rather than using the previously calculated
+  # neighbors. This next code actually catches the problem.
+  cell1 <- qt1@ptr$getCell(c(20000,20000))
+  cell2 <- qt2@ptr$getCell(c(20000,20000))
+  expect_equal(sort(cell1$getNeighborIds()), sort(cell2$getNeighborIds()))
+  
   unlink(filepath)
 })
 

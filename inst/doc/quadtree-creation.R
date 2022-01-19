@@ -42,13 +42,15 @@ plot(qt, main = "adj_type = 'none'")
 ## -----------------------------------------------------------------------------
 qt_range <- quadtree(rast, .1, split_method = "range")
 qt_sd <- quadtree(rast, .1, split_method = "sd")
+qt_cv <- quadtree(rast, .1, split_method = "cv")
 
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 3), mar = c(0,0,3,0))
 plot(qt_range, crop = TRUE, na_col = NULL, zlim = c(0, 1), border_lwd = .3,
-     legend = FALSE, main = "split_method = 'range'")
+     axes = FALSE, legend = FALSE, main = "split_method = 'range'")
 plot(qt_sd, crop = TRUE, na_col = NULL, zlim = c(0,1), border_lwd = .3,
-     legend = FALSE, main = "split_method = 'sd'")
-
+     axes = FALSE, legend = FALSE, main = "split_method = 'sd'")
+plot(qt_cv, crop = TRUE, na_col = NULL, zlim = c(0,1), border_lwd = .3,
+     axes = FALSE, legend = FALSE, main = "split_method = 'cv'")
 
 ## -----------------------------------------------------------------------------
 qt_mean <- quadtree(rast, .1, "sd", combine_method = "mean")

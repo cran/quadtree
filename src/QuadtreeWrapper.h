@@ -64,12 +64,14 @@ class QuadtreeWrapper{
     void makeNeighborList(std::shared_ptr<Node> node, Rcpp::List &list) const;
     Rcpp::List getNeighborList();
     
-    LcpFinderWrapper getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, bool searchByCentroid) const;
+    // LcpFinderWrapper getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, bool searchByCentroid) const;
+    LcpFinderWrapper getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, Rcpp::NumericMatrix newPoints, bool searchByCentroid) const;
     
     QuadtreeWrapper copy() const;
     
     static void writeQuadtree(QuadtreeWrapper qw, std::string filePath);
     static QuadtreeWrapper readQuadtree(std::string filePath);
+    static void writeQuadtreePtr(QuadtreeWrapper qw, std::string filePath);
     
     template<class Archive>
     void serialize(Archive & archive){ //couldn't get serialization to work unless I defined 'serialize' in the header rather than in 'Quadtree.cpp'

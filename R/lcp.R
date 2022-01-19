@@ -1,18 +1,22 @@
 #' @include generics.R
 
 #' @name lcp_finder
-#' @aliases lcp_finder,Quadtree,numeric-method
+#' @aliases lcp_finder,Quadtree-method
 #' @title Create a \code{LcpFinder}
 #' @description Creates a \code{\link{LcpFinder}} object that can then be used
 #'   by \code{\link{find_lcp}} and \code{\link{find_lcps}} to find least-cost
 #'   paths (LCPs) using a \code{\link{Quadtree}} as a resistance surface.
 #' @param x a \code{\link{Quadtree}} to be used as a resistance surface
-#' @param y two-element numeric vector (x, y) - the x and y coordinates of the
+#' @param start_point two-element numeric vector (x, y) - the x and y coordinates of the
 #'   starting point
 #' @param xlim two-element numeric vector (xmin, xmax) - constrains the nodes
 #'   included in the network to those whose x limits fall in the range specified
 #'   in \code{xlim}. If \code{NULL} the x limits of \code{x} are used
 #' @param ylim same as \code{xlim}, but for y
+#' @param new_points a two-column matrix representing point coordinates. First
+#'   column contains the x-coordinates, second column contains the
+#'   y-coordinates. This matrix specifies point locations to use instead of the
+#'   node centroids. See 'Details' for more.
 #' @param search_by_centroid boolean; determines which cells are considered to
 #'   be "in" the box specified by \code{xlim} and \code{ylim}. If \code{FALSE}
 #'   (the default) any cell that overlaps with the box is included. If
@@ -21,6 +25,30 @@
 #' @details
 #'   See the vignette 'quadtree-lcp' for more details and examples (i.e. run
 #'   \code{vignette("quadtree-lcp", package = "quadtree")})
+#'   
+#'   To find a least-cost path, the cells are treated as points - by default,
+#'   the cell centroids are used. This results in some degree of error,
+#'   especially for large cells. The \code{new_points} parameter can be used to
+#'   specify the points used to represent the cells - this is particularly
+#'   useful for specifying the points to be used for the start and end cells.
+#'   Each point in the matrix will be used as the point for the cell it falls in
+#'   (if two points fall in the same cell, the first point is used). Note that
+#'   this raises the possibility that a straight line between neighboring cells
+#'   may pass through other cells as well, which complicates the calculation of
+#'   the edge cost. To mitigate this, when a straight line between neighboring
+#'   cells passes through a different cell, the path is adjusted so that it
+#'   actually consists of two segments - the start point to the "corner point"
+#'   where the two cells meet, and then from that point to the end point. See
+#'   the "quadtree-lcp" vignette for a graphical example of this situation.
+#'   
+#'   An \code{LcpFinder} saves state, so once the LCP tree is calculated,
+#'   individual LCPs can be retrieved without further computation. This makes it
+#'   efficient at calculating multiple LCPs from a single starting point.
+#'   However, in the case where only a single LCP is needed,
+#'   \code{\link{find_lcp}()} offers an interface for finding an LCP without
+#'   needing to use \code{lcp_finder()} to create the \code{LcpFinder} object
+#'   first.
+#'   
 #' @return a \code{\link{LcpFinder}}
 #' @seealso \code{\link{find_lcp}()} returns the LCP between the start point and
 #'   another point. \code{\link{find_lcps}()} finds all LCPs whose cost-distance
@@ -52,13 +80,15 @@
 #' plot(qt, crop = TRUE, na_col = NULL, border_lwd = .3)
 #' points(rbind(start_pt, end_pt), pch = 16, col = "red")
 #' lines(path[, 1:2], col = "black")
+#' 
+#' 
 #' @export
-setMethod("lcp_finder", signature(x = "Quadtree", y = "numeric"),
-  function(x, y, xlim = NULL, ylim = NULL, search_by_centroid = FALSE) {
-    if (!is.numeric(y) || length(y) != 2)
-      stop("'y' must be a numeric vector with length 2")
-    if (any(is.na(y)))
-      stop("'y' contains NA values")
+setMethod("lcp_finder", signature(x = "Quadtree"),
+  function(x, start_point, xlim = NULL, ylim = NULL, new_points = matrix(nrow = 0, ncol = 2), search_by_centroid = FALSE) {
+    if (!is.numeric(start_point) || length(start_point) != 2)
+      stop("'start_point' must be a numeric vector with length 2")
+    if (any(is.na(start_point)))
+      stop("'start_point' contains NA values")
     if (!is.null(xlim) && (!is.numeric(xlim) || length(xlim) != 2))
       stop("'xlim' must be a numeric vector with length 2")
     if (!is.null(xlim) && any(is.na(xlim)))
@@ -82,38 +112,95 @@ setMethod("lcp_finder", signature(x = "Quadtree", y = "numeric"),
         ylim[1] > ext[4]) {
       warning("the search area defined by 'xlim' and 'ylim' does not overlap with the quadtree extent. No LCPs will be found.")
     }
-    if (y[1] < xlim[1] ||
-        y[1] > xlim[2] ||
-        y[2] < ylim[1] ||
-        y[2] > ylim[2]) {
-      warning(paste0("starting point (", y[1], ",", y[2], ") not valid (falls outside the search area). No LCPs will be found."))
+    if (start_point[1] < xlim[1] ||
+        start_point[1] > xlim[2] ||
+        start_point[2] < ylim[1] ||
+        start_point[2] > ylim[2]) {
+      warning(paste0("starting point (", start_point[1], ",", start_point[2], ") not valid (falls outside the search area). No LCPs will be found."))
     }
     spf <- new("LcpFinder")
-    spf@ptr <- x@ptr$getLcpFinder(y, xlim, ylim, search_by_centroid)
+    spf@ptr <- x@ptr$getLcpFinder(start_point, xlim, ylim, new_points, search_by_centroid)
+    # spf@ptr <- x@ptr$getLcpFinder(y, xlim, ylim, search_by_centroid)
 
     return(spf)
   }
 )
 
 #' @name find_lcp
-#' @aliases find_lcp,LcpFinder,numeric-method
+#' @aliases find_lcp,Quadtree-method find_lcp.Quadtree
+#' @param x a \code{\link{LcpFinder}} or a \code{\link{Quadtree}}
+#' @param start_point two-element numeric vector; the x and y coordinates of the
+#'   starting point. Not used if \code{x} is a \code{\link{LcpFinder}} since the
+#'   start point is determined when the \code{\link{LcpFinder}} is created
+#'   (using \code{\link{lcp_finder}()}).
+#' @param end_point two-element numeric vector; the x and y coordinates of the
+#'   destination point
+#' @param use_orig_points boolean; if \code{TRUE} (the default), the path is
+#'   calculated between \code{start_point} and \code{end_point}. If
+#'   \code{FALSE}, the path is calculated between the centroids of the cells the
+#'   points fall in.
+#' @param xlim two-element numeric vector (xmin, xmax); passed to
+#'   \code{\link{lcp_finder}()}; constrains the nodes included in the network to
+#'   those whose x limits fall in the range specified in \code{xlim}. If
+#'   \code{NULL} the x limits of \code{x} are used
+#' @param ylim same as \code{xlim}, but for y
+#' @param search_by_centroid boolean; passed to \code{\link{lcp_finder}()};
+#'   determines which cells are considered to be "in" the box specified by
+#'   \code{xlim} and \code{ylim}. If \code{FALSE} (the default) any cell that
+#'   overlaps with the box is included. If \code{TRUE}, a cell is only included
+#'   if its \strong{centroid} falls inside the box.
+#' @export
+setMethod("find_lcp", signature(x = "Quadtree"),
+  function(x, start_point, end_point, use_orig_points = TRUE, xlim = NULL, ylim = NULL, search_by_centroid = FALSE) {
+    if (!is.numeric(start_point) || length(start_point) != 2 ||
+        !is.numeric(end_point) || length(end_point) != 2)
+      stop("'start_point' and 'end_point' must be numeric vectors with length 2")
+    if (any(is.na(start_point)) || any(is.na(end_point)))
+      stop("'start_point' and 'end_point' must not contain NA values")
+    if(use_orig_points){
+      new_points <- rbind(start_point, end_point)
+    } else {
+      new_points <- matrix(nrow = 0, ncol = 2)
+    }
+    lcpf <- lcp_finder(x, start_point, xlim, ylim, new_points, search_by_centroid)
+    mat <- lcpf@ptr$getLcp(end_point, use_orig_points)
+    return(mat)
+  }
+)
+
+#' @name find_lcp
+#' @aliases find_lcp,LcpFinder-method find_lcp.LcpFinder
 #' @title Find the LCP between two points on a \code{Quadtree}
 #' @description Finds the least-cost path (LCP) from the start point (the point
 #'   used to create the \code{\link{LcpFinder}}) to another point, using a
 #'   \code{\link{Quadtree}} as a resistance surface.
-#' @param x a \code{\link{LcpFinder}}
-#' @param y two-element numeric vector; the x and y coordinates of the the
-#'   destination point
-#' @param use_original_end_points boolean; by default the start and end points
-#'   of the returned path are not the points given by the user but instead the
-#'   centroids of the cells that those points fall in. If this parameter is set
-#'   to \code{TRUE} the start and end points (representing the cell centroids)
-#'   are replaced with the actual points specified by the user. Note that this
-#'   is done after the calculation and has no effect on the path found by the
-#'   algorithm.
+#' @param allow_same_cell_path boolean; default is FALSE; if TRUE, allows
+#'   paths to be found between two points that fall in the same cell. See
+#'   'Details' for more.
 #' @details
 #'   See the vignette 'quadtree-lcp' for more details and examples (i.e. run
 #'   \code{vignette("quadtree-lcp", package = "quadtree")})
+#'   
+#'   Using \code{find_lcp(<Quadtree>)} rather than \code{find_lcp(<LcpFinder>)}
+#'   is simply a matter of convenience - when a \code{\link{Quadtree}} is passed
+#'   to \code{find_lcp()}, it automatically creates an \code{\link{LcpFinder}}
+#'   and then uses \code{find_lcp(<LcpFinder>)} to get the path between the two
+#'   points. This is convenient if you only want a single LCP. However, if you
+#'   want to find multiple LCPs from a single start point, it is better to first
+#'   create the \code{\link{LcpFinder}} object using \code{\link{lcp_finder}()}
+#'   and then use \code{find_lcp(<LcpFinder>)} for finding LCPs. This is because
+#'   an \code{\link{LcpFinder}} object saves state, so subsequent calls to
+#'   \code{find_lcp(<LcpFinder>)} will run faster.
+#'   
+#'   By default, if the end point falls in the same cell as the start point, the
+#'   path will consist only of the point associated with the cell. When using
+#'   \code{find_lcp} with a \code{\link{LcpFinder}}, setting
+#'   \code{allow_same_cell_path} to \code{TRUE} allows for paths to be found
+#'   within a single cell. In this case, if the start and end points fall in the
+#'   same cell, the path will consist of two points - the point associated with
+#'   the cell and \code{end_point}. If using \code{find_lcp} with a
+#'   \code{\link{Quadtree}}, this will automatically be allowed if
+#'   \code{use_orig_points} is \code{TRUE}.
 #' @return Returns a five column matrix representing the LCP. It has the
 #'   following columns:
 #'   \itemize{
@@ -124,17 +211,11 @@ setMethod("lcp_finder", signature(x = "Quadtree", y = "numeric"),
 #'      that this is not straight-line distance, but instead the distance along
 #'      the path}
 #'      \item{\code{cost_cell}: }{the cost of the cell that contains this point}
+#'      \item{\code{id}:}{ the ID of the cell that contains this point}
 #'    }
 #'
 #'   If no path is possible between the two points, a zero-row matrix with the
 #'   previously described columns is returned.
-#'
-#'   \strong{Important note:} the \code{use_original_end_points} option
-#'   \strong{only} changes the x and y coordinates of the first and last points
-#'   - it doesn't change the \code{cost_tot} or \code{dist_tot} columns. This
-#'   means that even though the start and end points have changed, the
-#'   \code{cost_tot} and \code{dist_tot} columns still represent the cost and
-#'   distance using the cell centroids of the start and end cells.
 #' @seealso \code{\link{lcp_finder}()} creates the LCP finder object used as
 #'   input to this function. \code{\link{find_lcps}()} calculates all LCPs
 #'   whose cost-distance is less than some value. \code{\link{summarize_lcps}()}
@@ -164,19 +245,18 @@ setMethod("lcp_finder", signature(x = "Quadtree", y = "numeric"),
 #' plot(qt, crop = TRUE, na_col = NULL, border_col = "gray30", border_lwd = .4)
 #' points(rbind(start_pt, end_pt), pch = 16, col = "red")
 #' lines(path[, 1:2], col = "black")
+#' 
+#' # note that the above path can also be found as follows:
+#' path <- find_lcp(qt, start_pt, end_pt)
 #' @export
-setMethod("find_lcp", signature(x = "LcpFinder", y = "numeric"),
-  function(x, y, use_original_end_points = FALSE) {
-    if (!is.numeric(y) || length(y) != 2)
-      stop("'y' must be a numeric vector with length 2")
-    if (any(is.na(y)))
-      stop("'y' contains NA values")
+setMethod("find_lcp", signature(x = "LcpFinder"),
+  function(x, end_point, allow_same_cell_path = FALSE) {
+    if (!is.numeric(end_point) || length(end_point) != 2)
+      stop("'start_pt' must be a numeric vector with length 2")
+    if (any(is.na(end_point)))
+      stop("'start_pt' contains NA values")
 
-    mat <- x@ptr$getLcp(y)
-    if (use_original_end_points && nrow(mat) > 0) {
-      mat[1, 1:2] <- x@ptr$getStartPoint()
-      mat[nrow(mat), 1:2] <- y
-    }
+    mat <- x@ptr$getLcp(end_point, allow_same_cell_path)
     return(mat)
   }
 )

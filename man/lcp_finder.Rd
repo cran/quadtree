@@ -2,15 +2,22 @@
 % Please edit documentation in R/lcp.R
 \name{lcp_finder}
 \alias{lcp_finder}
-\alias{lcp_finder,Quadtree,numeric-method}
+\alias{lcp_finder,Quadtree-method}
 \title{Create a \code{LcpFinder}}
 \usage{
-\S4method{lcp_finder}{Quadtree,numeric}(x, y, xlim = NULL, ylim = NULL, search_by_centroid = FALSE)
+\S4method{lcp_finder}{Quadtree}(
+  x,
+  start_point,
+  xlim = NULL,
+  ylim = NULL,
+  new_points = matrix(nrow = 0, ncol = 2),
+  search_by_centroid = FALSE
+)
 }
 \arguments{
 \item{x}{a \code{\link{Quadtree}} to be used as a resistance surface}
 
-\item{y}{two-element numeric vector (x, y) - the x and y coordinates of the
+\item{start_point}{two-element numeric vector (x, y) - the x and y coordinates of the
 starting point}
 
 \item{xlim}{two-element numeric vector (xmin, xmax) - constrains the nodes
@@ -18,6 +25,11 @@ included in the network to those whose x limits fall in the range specified
 in \code{xlim}. If \code{NULL} the x limits of \code{x} are used}
 
 \item{ylim}{same as \code{xlim}, but for y}
+
+\item{new_points}{a two-column matrix representing point coordinates. First
+column contains the x-coordinates, second column contains the
+y-coordinates. This matrix specifies point locations to use instead of the
+node centroids. See 'Details' for more.}
 
 \item{search_by_centroid}{boolean; determines which cells are considered to
 be "in" the box specified by \code{xlim} and \code{ylim}. If \code{FALSE}
@@ -36,6 +48,29 @@ Creates a \code{\link{LcpFinder}} object that can then be used
 \details{
 See the vignette 'quadtree-lcp' for more details and examples (i.e. run
   \code{vignette("quadtree-lcp", package = "quadtree")})
+  
+  To find a least-cost path, the cells are treated as points - by default,
+  the cell centroids are used. This results in some degree of error,
+  especially for large cells. The \code{new_points} parameter can be used to
+  specify the points used to represent the cells - this is particularly
+  useful for specifying the points to be used for the start and end cells.
+  Each point in the matrix will be used as the point for the cell it falls in
+  (if two points fall in the same cell, the first point is used). Note that
+  this raises the possibility that a straight line between neighboring cells
+  may pass through other cells as well, which complicates the calculation of
+  the edge cost. To mitigate this, when a straight line between neighboring
+  cells passes through a different cell, the path is adjusted so that it
+  actually consists of two segments - the start point to the "corner point"
+  where the two cells meet, and then from that point to the end point. See
+  the "quadtree-lcp" vignette for a graphical example of this situation.
+  
+  An \code{LcpFinder} saves state, so once the LCP tree is calculated,
+  individual LCPs can be retrieved without further computation. This makes it
+  efficient at calculating multiple LCPs from a single starting point.
+  However, in the case where only a single LCP is needed,
+  \code{\link{find_lcp}()} offers an interface for finding an LCP without
+  needing to use \code{lcp_finder()} to create the \code{LcpFinder} object
+  first.
 }
 \examples{
 ####### NOTE #######
@@ -60,6 +95,8 @@ path <- find_lcp(lcpf, end_pt)
 plot(qt, crop = TRUE, na_col = NULL, border_lwd = .3)
 points(rbind(start_pt, end_pt), pch = 16, col = "red")
 lines(path[, 1:2], col = "black")
+
+
 }
 \seealso{
 \code{\link{find_lcp}()} returns the LCP between the start point and

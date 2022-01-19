@@ -41,6 +41,7 @@ public:
 
     static bool splitRange(const Matrix &mat, double limit);
     static bool splitSD(const Matrix &mat, double limit);
+    static bool splitCV(const Matrix &mat, double limit);
     static double combineMean(const Matrix &mat);
     static double combineMedian(const Matrix &mat);
     static double combineMin(const Matrix &mat);
@@ -75,7 +76,7 @@ public:
 
     template<class Archive>
     void serialize(Archive & archive){ // couldn't get serialization to work unless I defined 'serialize' in the header rather than in 'Quadtree.cpp'
-        archive(nNodes,proj4string,root);
+        archive(root, nNodes, matNX, matNY, maxXCellLength, maxYCellLength, minXCellLength, minYCellLength, splitAllNAs, splitAnyNAs, proj4string);
     }
 
     static void writeQuadtree(std::shared_ptr<Quadtree> quadtree, std::string filePath);

@@ -1,7 +1,7 @@
 #' @import methods Rcpp
 #' @importFrom graphics plot points lines matplot
 #' @importFrom stats reshape
-#' @importFrom raster extract extent projection projection<-
+#' @importFrom raster extract extent
 
 #' @name quadtree-package
 #' @docType package
@@ -22,8 +22,8 @@
 #' Vignettes are included that demonstrate the functionality contained in the
 #' package - these are intended to serve as an introduction to using the
 #' \code{quadtree} package. You can see the available vignettes by running
-#' \code{vignettes(package = "quadtree")} and view individual vignettes using
-#' \code{vignettes("vignette-name", package = "quadtree")}.
+#' \code{vignette(package = "quadtree")} and view individual vignettes using
+#' \code{vignette("vignette-name", package = "quadtree")}.
 #'
 #' I'd recommend reading the vignettes in the following order: \enumerate{
 #'   \item \code{"quadtree-creation"}

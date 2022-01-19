@@ -119,6 +119,10 @@ void QuadtreeWrapper::createTree(Rcpp::NumericMatrix &mat, std::string splitMeth
         split = [&splitThreshold](const Matrix &mat) -> bool {
           return Quadtree::splitSD(mat, splitThreshold);
         };
+      } else if(splitMethod == "cv"){
+        split = [&splitThreshold](const Matrix &mat) -> bool {
+          return Quadtree::splitCV(mat, splitThreshold);
+        };
       }
     } else {
       split = [&splitArgs, &splitFun] (const Matrix &mat) -> bool{
@@ -274,8 +278,12 @@ Rcpp::List QuadtreeWrapper::getNeighborList(){
   return nbList;
 }
 
-LcpFinderWrapper QuadtreeWrapper::getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, bool searchByCentroid) const{
-  return LcpFinderWrapper(quadtree, startPoint, xlims, ylims, searchByCentroid);
+// LcpFinderWrapper QuadtreeWrapper::getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, bool searchByCentroid) const{
+//   return LcpFinderWrapper(quadtree, startPoint, xlims, ylims, searchByCentroid);
+// }
+
+LcpFinderWrapper QuadtreeWrapper::getLcpFinder(Rcpp::NumericVector startPoint, Rcpp::NumericVector xlims, Rcpp::NumericVector ylims, Rcpp::NumericMatrix newPoints, bool searchByCentroid) const{
+  return LcpFinderWrapper(quadtree, startPoint, xlims, ylims, newPoints, searchByCentroid);
 }
 
 QuadtreeWrapper QuadtreeWrapper::copy() const{
@@ -303,5 +311,10 @@ QuadtreeWrapper QuadtreeWrapper::readQuadtree(std::string filePath){
   cereal::PortableBinaryInputArchive iarchive(is);
   QuadtreeWrapper qw;
   iarchive(qw);
+  qw.quadtree->assignNeighbors();
   return qw;
+}
+
+void QuadtreeWrapper::writeQuadtreePtr(QuadtreeWrapper qw, std::string filePath){
+  writeQuadtree(qw.quadtree, filePath);
 }
