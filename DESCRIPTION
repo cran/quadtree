@@ -1,7 +1,7 @@
 Type: Package
 Package: quadtree
 Title: Region Quadtrees for Spatial Data
-Version: 0.1.8
+Version: 0.1.9
 Date: 2022-01-13
 Authors@R: 
     c(person(given = "Derek",
@@ -53,11 +53,11 @@ Collate: 'CppLcpFinder-class.R' 'CppNode-class.R' 'CppQuadtree-class.R'
         'qtree-exports.R' 'quadtree-package.R' 'quadtree.R'
         'read_write.R' 'set_values.R' 'summary_LcpFinder.R'
         'summary_Quadtree.R' 'transform_values.R'
-Packaged: 2022-01-14 00:52:16 UTC; dfriend
+Packaged: 2022-02-01 00:30:57 UTC; dfriend
 Author: Derek Friend [aut, cre, cph] (<https://orcid.org/0000-0002-6909-8769>),
   Randolph Voorhies [cph] (Author of included 'cereal' library),
   Shane Grant [cph] (Author of included 'cereal' library),
   Juan Pedro Bolivar Puente [cph] (Author of included 'cereal' library)
 Maintainer: Derek Friend <dafriend.R@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-01-19 15:42:42 UTC
+Date/Publication: 2022-02-01 16:00:12 UTC

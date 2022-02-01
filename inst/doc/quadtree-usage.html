@@ -140,7 +140,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <h1 class="title toc-ignore">Using Quadtrees</h1>
 <h4 class="author">Derek Friend</h4>
-<h4 class="date">Last compiled on January 13, 2022</h4>
+<h4 class="date">Last compiled on January 31, 2022</h4>
 
 
 
@@ -226,14 +226,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In addition to extracting values from cells, it is possible to determine neighbor relationships between cells via the <code>get_neighbors()</code> function. Given a point, <code>get_neighbors()</code> returns the cells that neighbor the cell that the point falls in. Note that cells that are diagonal from each either (i.e. only touch at the corner) are considered to be neighbors.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_neighbors</span>(qt, <span class="fu">as.numeric</span>(pts[<span class="dv">3</span>,]))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        id  xmin  xmax  ymin  ymax     value</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1046 20000 21000 32000 33000 0.8236875</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]  975 19500 20000 32000 32500 0.8557500</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 1047 21000 22000 32000 33000 0.7893750</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,]  975 19500 20000 32000 32500 0.8557500</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 1046 20000 21000 32000 33000 0.8236875</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] 3295 19000 20000 31000 32000 0.9098125</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5,] 3301 19000 20000 30000 31000 0.9466250</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6,] 3395 21000 22000 31000 32000 0.8061875</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [7,] 3396 20000 21000 30000 31000 0.8688750</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [8,] 3397 21000 22000 30000 31000 0.8125625</span></span></code></pre></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [6,] 3396 20000 21000 30000 31000 0.8688750</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [7,] 3397 21000 22000 30000 31000 0.8125625</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [8,] 3395 21000 22000 31000 32000 0.8061875</span></span></code></pre></div>
 </div>
 </div>
 <div id="copying-a-quadtree" class="section level2">
