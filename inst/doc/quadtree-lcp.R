@@ -13,9 +13,9 @@ old_par <- par(no.readonly = TRUE)
 
 ## ---- message = FALSE, warning = FALSE----------------------------------------
 library(quadtree)
-library(raster)
+library(terra)
 
-data(habitat)
+habitat <- terra::rast(system.file("extdata", "habitat.tif", package="quadtree"))
 rast <- habitat
 qt <- quadtree(rast, .04, split_method = "sd")
 

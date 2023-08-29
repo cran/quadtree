@@ -1,14 +1,18 @@
 Type: Package
 Package: quadtree
 Title: Region Quadtrees for Spatial Data
-Version: 0.1.10
-Date: 2022-12-03
+Version: 0.1.14
+Date: 2023-08-26
 Authors@R: 
     c(person(given = "Derek",
              family = "Friend",
              role = c("aut", "cre", "cph"),
              email = "dafriend.R@gmail.com",
              comment = c(ORCID = "0000-0002-6909-8769")),
+      person(given = "Andrew",
+             family = "Brown",
+             role = "ctb",
+             email = "brown.andrewg@gmail.com"),
       person(given = "Randolph",
              family = "Voorhies",
              role = "cph",
@@ -37,27 +41,27 @@ URL: https://github.com/dfriend21/quadtree/,
         https://dfriend21.github.io/quadtree/
 BugReports: https://github.com/dfriend21/quadtree/issues/
 Depends: R (>= 2.10)
-Imports: graphics, grDevices, methods, raster, Rcpp (>= 1.0.5), stats
-Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+Imports: graphics, grDevices, methods, Rcpp (>= 1.0.5), terra, stats
+Suggests: raster, sf, knitr, rmarkdown, testthat (>= 3.0.0)
 LinkingTo: Rcpp
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 NeedsCompilation: yes
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Collate: 'CppLcpFinder-class.R' 'CppNode-class.R' 'CppQuadtree-class.R'
-        'classes.R' 'generics.R' 'as_data_frame.R' 'as_raster.R'
-        'as_vector.R' 'copy.R' 'data_documentation.R' 'extent.R'
-        'extract.R' 'get_neighbors.R' 'lcp.R' 'n_cells.R'
-        'plot_LcpFinder.R' 'plot_Quadtree.R' 'projection.R'
-        'qtree-exports.R' 'quadtree-package.R' 'quadtree.R'
-        'read_write.R' 'set_values.R' 'summary_LcpFinder.R'
-        'summary_Quadtree.R' 'transform_values.R'
-Packaged: 2022-12-03 19:30:27 UTC; dfriend
+        'classes.R' 'generics.R' 'as_data_frame.R' 'as_foreign.R'
+        'as_raster.R' 'as_vector.R' 'copy.R' 'extent.R' 'extract.R'
+        'get_neighbors.R' 'lcp.R' 'n_cells.R' 'plot_LcpFinder.R'
+        'plot_Quadtree.R' 'projection.R' 'qtree-exports.R'
+        'quadtree-package.R' 'quadtree.R' 'read_write.R' 'set_values.R'
+        'summary_LcpFinder.R' 'summary_Quadtree.R' 'transform_values.R'
+Packaged: 2023-08-29 00:11:44 UTC; dfriend
 Author: Derek Friend [aut, cre, cph] (<https://orcid.org/0000-0002-6909-8769>),
+  Andrew Brown [ctb],
   Randolph Voorhies [cph] (Author of included 'cereal' library),
   Shane Grant [cph] (Author of included 'cereal' library),
   Juan Pedro Bolivar Puente [cph] (Author of included 'cereal' library)
 Maintainer: Derek Friend <dafriend.R@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-12-04 14:10:02 UTC
+Date/Publication: 2023-08-29 09:10:02 UTC

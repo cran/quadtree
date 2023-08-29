@@ -9,10 +9,10 @@ knitr::opts_chunk$set(
 old_par <- par(no.readonly = TRUE)
 
 ## ----message = FALSE----------------------------------------------------------
-library(raster)
+library(terra)
 library(quadtree)
 
-data(habitat)
+habitat <- terra::rast(system.file("extdata", "habitat.tif", package="quadtree"))
 rast <- habitat
 
 qt <- quadtree(rast, .15)

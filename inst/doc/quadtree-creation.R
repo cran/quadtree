@@ -12,9 +12,9 @@ old_par <- par(no.readonly = TRUE)
 
 ## ---- message = FALSE, warning = FALSE----------------------------------------
 library(quadtree)
-library(raster)
+library(terra)
 
-data(habitat)
+habitat <- terra::rast(system.file("extdata", "habitat.tif", package="quadtree"))
 rast <- habitat
 plot(rast, main = "sample raster")
 
@@ -97,7 +97,7 @@ plot(qt, crop = TRUE, na_col = NULL, border_lwd = .3,
      main = "custom combine function")
 
 ## -----------------------------------------------------------------------------
-data(habitat_roads)
+habitat_roads <- terra::rast(system.file("extdata", "habitat_roads.tif", package="quadtree"))
 template <- habitat_roads
 
 # use a custom function so that a quadrant is split if it contains any 1's

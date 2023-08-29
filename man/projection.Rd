@@ -6,7 +6,7 @@
 \alias{projection<-}
 \alias{projection<-,Quadtree,ANY-method}
 \alias{projection<-,Quadtree-method}
-\title{Retrieve the proj4string of a \code{Quadtree}}
+\title{Retrieve the projection of a \code{Quadtree}}
 \usage{
 \S4method{projection}{Quadtree}(x)
 
@@ -22,11 +22,11 @@
 a string
 }
 \description{
-Retrieves the proj4string of a \code{\link{Quadtree}}.
+Retrieves the projection of a \code{\link{Quadtree}}.
 }
 \examples{
 library(quadtree)
-data(habitat)
+habitat <- terra::rast(system.file("extdata", "habitat.tif", package="quadtree"))
 
 qt <- quadtree(habitat, .1)
 quadtree::projection(qt) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
